@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Deck } from "./models/types";
 import { deepCopyMasterTable } from "./models/masterData";
 import DeckTab from "./components/DeckTab";
-import { Container, Typography, Button, Box, Tabs, Tab, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Alert } from "@mui/material";
+import { Container, Typography, Button, Box, Tabs, Tab, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, Alert } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 
 const App: React.FC = () => {
@@ -13,6 +13,7 @@ const App: React.FC = () => {
   const [editDeck, setEditDeck] = useState<Deck | null>(null);
   const [openEditDeckDlg, setOpenEditDeckDlg] = useState(false);
   const [editDeckName, setEditDeckName] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
     const savedDecks = localStorage.getItem("decks");
@@ -64,11 +65,16 @@ const App: React.FC = () => {
       setDecks(updatedDecks);
       localStorage.setItem("decks", JSON.stringify(updatedDecks));
       handleCloseEditDeckDlg();
+      setOpenSnackbar(true); // Show success notification
     }
   };
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
   return (
@@ -151,6 +157,11 @@ const App: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          Deck edited successfully!
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
