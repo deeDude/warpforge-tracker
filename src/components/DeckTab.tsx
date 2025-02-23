@@ -1,4 +1,6 @@
 import React from "react";
+import { IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Table,
   TableBody,
@@ -23,14 +25,20 @@ function getWarlordStats(w: Warlord) {
 
 interface DeckTabProps {
   deck: Deck;
+  onEditDeck: (deck: Deck) => void;
 }
 
-const DeckTab: React.FC<DeckTabProps> = ({ deck }) => {
+const DeckTab: React.FC<DeckTabProps> = ({ deck, onEditDeck }) => {
   return (
     <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
-      <Typography variant="h5" gutterBottom>
-        {deck.deckName}
-      </Typography>
+      <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
+        <Typography variant="h5" sx={{ marginBottom: 0 }}>
+          {deck.deckName}
+        </Typography>
+        <IconButton onClick={() => onEditDeck(deck)} sx={{ ml: 1 }}>
+          <EditIcon />
+        </IconButton>
+      </Box>
       <Box>
         <TableContainer>
           <Table size="small" aria-label="deck stats table">
