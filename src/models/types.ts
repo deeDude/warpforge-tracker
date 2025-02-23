@@ -14,6 +14,7 @@ export interface Faction {
 }
 
 export interface Deck {
+  uuid: string;
   deckName: string;
   factions: Faction[];
 }

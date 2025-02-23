@@ -3,6 +3,7 @@ import { Deck } from "./models/types";
 import { deepCopyMasterTable } from "./models/masterData";
 import DeckTab from "./components/DeckTab";
 import { Container, Typography, Button, Box, Tabs, Tab } from "@mui/material";
+import { v4 as uuidv4 } from "uuid";
 
 const App: React.FC = () => {
   const [decks, setDecks] = useState<Deck[]>([]);
@@ -18,13 +19,14 @@ const App: React.FC = () => {
   const handleAddDeck = () => {
     const deckName = prompt("Enter deck name:", "New Deck") || "New Deck";
     const newDeck: Deck = {
+      uuid: uuidv4(),
       deckName,
       factions: deepCopyMasterTable(),
     };
     const updatedDecks = [...decks, newDeck];
     setDecks(updatedDecks);
     localStorage.setItem("decks", JSON.stringify(updatedDecks));
-    setSelectedTab(updatedDecks.length - 1); // Automatically select the newly added tab
+    setSelectedTab(updatedDecks.length - 1);
   };
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
