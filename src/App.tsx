@@ -24,6 +24,7 @@ const App: React.FC = () => {
     const updatedDecks = [...decks, newDeck];
     setDecks(updatedDecks);
     localStorage.setItem("decks", JSON.stringify(updatedDecks));
+    setSelectedTab(updatedDecks.length - 1); // Automatically select the newly added tab
   };
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
