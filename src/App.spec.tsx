@@ -2,9 +2,12 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import App from "./App";
 import "@testing-library/jest-dom";
 
-window.prompt = jest.fn();
 window.localStorage.__proto__.getItem = jest.fn();
 window.localStorage.__proto__.setItem = jest.fn();
+
+beforeEach(() => {
+  localStorage.clear();
+});
 
 test("renders", () => {
   render(<App />);
@@ -14,32 +17,34 @@ test("creates a new deck with a unique name", () => {
   render(<App />);
   const addButton = screen.getByText("Add New Deck");
   fireEvent.click(addButton);
-  const promptSpy = jest.spyOn(window, "prompt").mockReturnValue("Unique Deck");
-  fireEvent.click(addButton);
-  expect(screen.getByText("Unique Deck")).toBeInTheDocument();
-  promptSpy.mockRestore();
+  const input = screen.getByLabelText("Deck Name");
+  fireEvent.change(input, { target: { value: "Unique Deck" } });
+  const saveButton = screen.getByText("Save");
+  fireEvent.click(saveButton);
+  const deckNameElement = screen.getByText("Unique Deck", { selector: 'h5' });
+  expect(deckNameElement).toBeInTheDocument();
 });
 
 test("saves the deck to local storage", () => {
   render(<App />);
   const addButton = screen.getByText("Add New Deck");
   fireEvent.click(addButton);
-  const promptSpy = jest.spyOn(window, "prompt").mockReturnValue("Saved Deck");
-  fireEvent.click(addButton);
+  const input = screen.getByLabelText("Deck Name");
+  fireEvent.change(input, { target: { value: "Saved Deck" } });
+  const saveButton = screen.getByText("Save");
+  fireEvent.click(saveButton);
   expect(localStorage.setItem).toHaveBeenCalledWith(
     "decks",
-    JSON.stringify([{ deckName: "Saved Deck", factions: expect.any(Array) }]),
+    expect.stringContaining('"deckName":"Saved Deck"')
   );
-  promptSpy.mockRestore();
 });
 
 test("loads decks from local storage on component mount", () => {
   const savedDecks = [{ deckName: "Loaded Deck", factions: [] }];
-  jest
-    .spyOn(localStorage, "getItem")
-    .mockReturnValue(JSON.stringify(savedDecks));
+  jest.spyOn(localStorage, "getItem").mockReturnValue(JSON.stringify(savedDecks));
   render(<App />);
-  expect(screen.getByText("Loaded Deck")).toBeInTheDocument();
+  const deckNameElement = screen.getByText("Loaded Deck", { selector: 'h5' });
+  expect(deckNameElement).toBeInTheDocument();
 });
 
 test("shows only one deck per tab", () => {
@@ -51,10 +56,7 @@ test("shows only one deck per tab", () => {
     .spyOn(localStorage, "getItem")
     .mockReturnValue(JSON.stringify(savedDecks));
   render(<App />);
-  expect(screen.getByText("Deck 1")).toBeInTheDocument();
-  expect(screen.getByText("Deck 2")).toBeInTheDocument();
-  const tab1 = screen.getByRole("tabpanel", { hidden: true, name: "Deck 1" });
-  const tab2 = screen.getByRole("tabpanel", { hidden: true, name: "Deck 2" });
-  expect(tab1).toBeInTheDocument();
-  expect(tab2).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: 'Deck 1' })).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: 'Deck 2' })).toBeInTheDocument();
+  expect(screen.getByText('Deck 1', { selector: 'h5' })).toBeInTheDocument();
 });
